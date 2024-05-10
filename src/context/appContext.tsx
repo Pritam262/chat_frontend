@@ -3,9 +3,11 @@
 import { createContext, ReactNode, useContext, useState, SetStateAction, Dispatch } from "react";
 
 interface UserInfo {
+  id?:string,
   displayName: string,
   email: string,
-  photoURL: string
+  photoURL: string,
+  about?:string,
 }
 
 type AppContextType = {
@@ -14,6 +16,8 @@ type AppContextType = {
   setIsLogin: Dispatch<SetStateAction<boolean>>; // Corrected type for setIsLogin
   userInfo: UserInfo | undefined,
   setUserInfo: Dispatch<SetStateAction<UserInfo | undefined>>,
+  newUser:boolean,
+  setNewUser:Dispatch<SetStateAction<boolean>>,
 };
 
 
@@ -43,6 +47,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>();
 
+  const [newUser, setNewUser] = useState(false);
 
 
 
@@ -56,6 +61,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setIsLogin,
     userInfo,
     setUserInfo,
+    newUser,
+    setNewUser,
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>
