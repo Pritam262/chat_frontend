@@ -5,6 +5,7 @@ import { FaCamera } from "react-icons/fa";
 import ContextMenu from './ContextMenu';
 import PhotoPicker from './PhotoPicker';
 import PhotoLibrary from './PhotoLibrary';
+import CapturePhoto from './CapturePhoto';
 
 
 interface PropsInterface {
@@ -20,15 +21,22 @@ export default function Avatar({ props: { type, image, setImage } }: PropsInterf
     const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
     const [contextMenuCordinate, setContextMenuCordinates] = useState({ x: 0, y: 0 });
 
+    const [grabPhoto, setGrabPhoto] = useState(false);
+    const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
+    const [showCapturePhoto, setShowCapturePhoto] = useState(false);
+
     const showContextMenu = (e: MouseEvent<HTMLElement>) => {
         setIsContextMenuVisible(true);
         setContextMenuCordinates({ x: e.pageX, y: e.pageY })
     }
 
-    const [grabPhoto, setGrabPhoto] = useState(false);
-    const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
     const contextMenuOption = [
-        { name: "Take photo", callback: () => { console.log("Take photo") } },
+        {
+            name: "Take photo", callback: () => {
+                console.log("Take photo");
+                setShowCapturePhoto(true);
+            }
+        },
         { name: "Choose from library", callback: () => { console.log("Choose photo"); setShowPhotoLibrary(true) } },
         { name: "Upload photo", callback: () => { console.log("Upload photo"); setGrabPhoto(true) } },
         { name: "Remove photo", callback: () => { console.log("Remove photo"); setImage("/default_avatar.png") } }
@@ -117,6 +125,9 @@ export default function Avatar({ props: { type, image, setImage } }: PropsInterf
             }
         </div>
         {isContextMenuVisible && <ContextMenu props={{ options: contextMenuOption, cordinates: contextMenuCordinate, contextMenu: isContextMenuVisible, setContextMenu: setIsContextMenuVisible }} />}
+
+
+        {showCapturePhoto && <CapturePhoto props={{ setImage, hideCapturePhoto: setShowCapturePhoto }} />}
 
         {showPhotoLibrary && <PhotoLibrary props={{ setImage, hidePhotoLibrary: setShowPhotoLibrary }} />}
         {grabPhoto && <PhotoPicker props={{ onChange: photoPickerChange }} />}
