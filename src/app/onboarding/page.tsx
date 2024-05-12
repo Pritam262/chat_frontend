@@ -15,12 +15,12 @@ export default function OnboardingPage() {
     const [about, setAbout] = useState("");
     const [image, setImage] = useState("/default_avatar.png");
 
-    useEffect(() => {
+    useEffect(()=>{
 
-        if (!newUser && !userInfo?.email) router.push('/login')
-        else if (!newUser && userInfo?.email) router.push('/')
+        if(!newUser && !userInfo?.email) router.push('/login')
+            else if(!newUser && userInfo?.email) router.push('/')
 
-    }, [newUser, userInfo, router])
+    },[newUser, userInfo, router])
 
     const onBoardUserHandler = async () => {
         if (validateDetails()) {
