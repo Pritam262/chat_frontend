@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, ReactNode, useContext, useState, SetStateAction, Dispatch } from "react";
+import crypto from 'crypto';
 
 interface UserInfo {
   id?: string,
@@ -18,6 +19,20 @@ interface ChatUser {
   about: string
 }
 
+interface Message {
+  id: string,
+  senderId: string,
+  receverId: string,
+  type: string,
+  message: string,
+  messageStatus: string,
+  createdAt: string
+}
+interface MessagesInterface {
+  messages: Message[]
+}
+
+
 type AppContextType = {
 
   isLogin: boolean;
@@ -30,7 +45,13 @@ type AppContextType = {
   setContactPage: Dispatch<SetStateAction<boolean>>,
   // changeCurrentChatUser:
   currentChatUser: ChatUser | undefined,
-  setCurrentChatUser: Dispatch<SetStateAction<ChatUser | undefined>>
+  setCurrentChatUser: Dispatch<SetStateAction<ChatUser | undefined>>,
+  messages: MessagesInterface | undefined,
+  setMessages: Dispatch<SetStateAction<MessagesInterface | undefined>>,
+  encryptText: (text: string) => string,
+  decryptText: (text: string) => string,
+  // encrypt: (text: string) => string,
+  // decrypt: (text: string) => string,
 };
 
 
@@ -62,10 +83,74 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const [newUser, setNewUser] = useState(false);
   const [contactPage, setContactPage] = useState(false);
-  const [currentChatUser, setCurrentChatUser] = useState<ChatUser | undefined>()
+  const [currentChatUser, setCurrentChatUser] = useState<ChatUser | undefined>();
+  const [messages, setMessages] = useState<MessagesInterface | undefined>();
+
+  function encryptText(text: string,) {
+    const bufferKey = Buffer.from([0x8e, 0x60, 0x5e, 0xfe, 0xc7, 0x5f, 0xda, 0xda, 0xad, 0xcf, 0x4c, 0x9b, 0xea, 0x33, 0xde, 0x82, 0x2a, 0x4a, 0xf5, 0x77, 0x32, 0x25, 0xba, 0x43, 0xd6, 0x4b, 0x9a, 0xa8, 0xe1, 0xd2, 0x20, 0x0d]);
+    // console.log(bufferKey)
+    const algorithm = 'aes-256-cbc';
+    const iv = crypto.randomBytes(16); // 128-bit IV
+
+    const cipher = crypto.createCipheriv(algorithm, bufferKey, iv);
+    const encryptedData = cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
+
+    return `${iv.toString('hex')}:${encryptedData}`; // Combine IV and encrypted data
+  }
+
+  function decryptText(encryptedData: string,) {
+    const bufferKey = Buffer.from([0x8e, 0x60, 0x5e, 0xfe, 0xc7, 0x5f, 0xda, 0xda, 0xad, 0xcf, 0x4c, 0x9b, 0xea, 0x33, 0xde, 0x82, 0x2a, 0x4a, 0xf5, 0x77, 0x32, 0x25, 0xba, 0x43, 0xd6, 0x4b, 0x9a, 0xa8, 0xe1, 0xd2, 0x20, 0x0d]);
+    const [ivStr, encryptedText] = encryptedData.split(':');
+    const iv = Buffer.from(ivStr, 'hex');
+    if (!ivStr || !encryptedText) {
+      return encryptedData;
+    }
+    else {
+
+
+      const decipher = crypto.createDecipheriv('aes-256-cbc', bufferKey, iv);
+      const decryptedData = decipher.update(encryptedText, 'hex', 'utf8') + decipher.final('utf8');
+
+      return decryptedData;
+    }
+  }
 
 
 
+//   // Generate keys
+//   const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+//     modulusLength: 2048, // Key size
+//     publicKeyEncoding: {
+//       type: 'spki',
+//       format: 'pem'
+//     },
+//     privateKeyEncoding: {
+//       type: 'pkcs8',
+//       format: 'pem',
+//     }
+//   });
+
+//   console.log(publicKey, privateKey);
+
+
+//  function encrypt(text: string): string {
+//     const encryptedBuffer = crypto.publicEncrypt({
+//         key: publicKey,
+//         padding: crypto.constants.RSA_PKCS1_PADDING
+//     }, Buffer.from(text));
+
+//     return encryptedBuffer.toString('base64');
+// }
+
+// // Decryption function
+//  function decrypt(encryptedText: string): string {
+//     const decryptedBuffer = crypto.privateDecrypt({
+//         key: privateKey,
+//         padding: crypto.constants.RSA_PKCS1_PADDING
+//     }, Buffer.from(encryptedText, 'base64'));
+
+//     return decryptedBuffer.toString('utf8');
+// }
 
 
 
@@ -81,7 +166,13 @@ export function AppProvider({ children }: AppProviderProps) {
     contactPage,
     setContactPage,
     currentChatUser,
-    setCurrentChatUser
+    setCurrentChatUser,
+    messages,
+    setMessages,
+    encryptText,
+    decryptText,
+    // encrypt,
+    // decrypt
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>
