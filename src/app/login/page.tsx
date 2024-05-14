@@ -5,14 +5,14 @@ import { firebaseAuth } from "@/utils/FirebaseConfig"
 import axios from "axios"
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 
 export default function LoginPage() {
     const router = useRouter();
-    const { setUserInfo } = useAppContext();
+    const { setUserInfo, setNewUser, userInfo, newUser } = useAppContext();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -27,23 +27,33 @@ export default function LoginPage() {
         // const user = result.user;
         // Handle successful login (e.g., redirect to protected route)
         try {
-
-            
-
             if (email) {
                 const { data } = await axios.post(CHECK_USER_ROUTE, { email });
 
-                console.log({ data });
+                // console.log({ data });
 
                 //Import security positio
 
                 if (!data.status) {
+                    setNewUser(true);
                     setUserInfo({
                         displayName: String(name),
-                        email:String(email),
+                        email: String(email),
                         photoURL: String(profileImage)
                     })
                     router.push('/onboarding');
+                }
+                else {
+                    const { id, name, email, profilePicture, about } = data.data;
+                    setUserInfo({
+                        id: id,
+                        displayName: name,
+                        email: email,
+                        photoURL: profilePicture,
+                        about: about || '',
+                    })
+
+                    router.push('/');
                 }
 
             }
@@ -52,6 +62,15 @@ export default function LoginPage() {
         }
 
     }
+
+    // useEffect(()=>{
+
+    //     console.log(userInfo, newUser)
+
+    //     if(userInfo?.id && !newUser) router.push("/")
+    // },[userInfo, newUser])
+
+
     return <div className="w-screen h-screen flex flex-col  items-center justify-center bg-panel-header-background gap-6">
 
         <div className="flex items-center justify-center gap-2 text-white">
