@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 
+// "chat-background": "linear-gradient(rgba(0,0,0, 0.9), rgba(0,0,0, 0.9)),url('/chat-bg.png')",
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
