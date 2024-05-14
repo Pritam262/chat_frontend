@@ -7,7 +7,7 @@ import { useAppContext } from "@/context/appContext";
 
 export default function ChatHeader() {
     const { currentChatUser } = useAppContext();
-    return <div className="h-16 px-4 py-3 flex justify-between items-center bg-panel-header-background z-10">
+    return <div className="h-16 px-4 py-3 flex justify-between items-center bg-panel-header-background z-100">
         {currentChatUser && <>
             <div className="flex items-center-justify-center gap-6">
                 <Avatar props={{ type: "sm", image: currentChatUser?.profilePicture, setImage: () => "" }} />
