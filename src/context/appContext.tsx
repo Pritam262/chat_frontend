@@ -2,24 +2,39 @@
 
 import { createContext, ReactNode, useContext, useState, SetStateAction, Dispatch } from "react";
 import crypto from 'crypto';
+import { Socket } from "socket.io-client";
+import { ChatUser, Message, MessagesInterface, UserInfo } from "@/utils/types";
 
-interface UserInfo {
-  id?: string,
-  displayName: string,
-  email: string,
-  photoURL: string,
-  about?: string,
-}
+// interface UserInfo {
+//   id?: string,
+//   displayName: string,
+//   email: string,
+//   photoURL: string,
+//   about?: string,
+// }
 
-interface ChatUser {
-  id: string,
-  name: string,
-  email: string,
-  profilePicture: string,
-  about: string
-}
+// interface ChatUser {
+//   id: string,
+//   name: string,
+//   email: string,
+//   profilePicture: string,
+//   about: string
+// }
 
-interface Message {
+// interface Message {
+//   id: string,
+//   senderId: string,
+//   receverId: string,
+//   type: string,
+//   message: string,
+//   messageStatus: string,
+//   createdAt: string
+// }
+// interface MessagesInterface {
+//   messages: Message[]
+// }
+
+interface SocketMessage {
   id: string,
   senderId: string,
   receverId: string,
@@ -27,9 +42,6 @@ interface Message {
   message: string,
   messageStatus: string,
   createdAt: string
-}
-interface MessagesInterface {
-  messages: Message[]
 }
 
 
@@ -46,12 +58,19 @@ type AppContextType = {
   // changeCurrentChatUser:
   currentChatUser: ChatUser | undefined,
   setCurrentChatUser: Dispatch<SetStateAction<ChatUser | undefined>>,
-  messages: MessagesInterface | undefined,
-  setMessages: Dispatch<SetStateAction<MessagesInterface | undefined>>,
+  // messages: MessagesInterface | undefined,
+  // setMessages: Dispatch<SetStateAction<MessagesInterface | undefined>>,
+  messages: Message[] | undefined;  // Corrected type for messages
+  setMessages: Dispatch<SetStateAction<Message[] | undefined>>;
+  
   encryptText: (text: string) => string,
   decryptText: (text: string) => string,
   // encrypt: (text: string) => string,
   // decrypt: (text: string) => string,
+  socket: Socket | undefined,
+  setSocket: Dispatch<SetStateAction<Socket | undefined>>,
+  // socketMessage: Message | undefined,
+  // setSocketMessage: Dispatch<SetStateAction<Message | undefined>>
 };
 
 
@@ -84,7 +103,11 @@ export function AppProvider({ children }: AppProviderProps) {
   const [newUser, setNewUser] = useState(false);
   const [contactPage, setContactPage] = useState(false);
   const [currentChatUser, setCurrentChatUser] = useState<ChatUser | undefined>();
-  const [messages, setMessages] = useState<MessagesInterface | undefined>();
+  const [messages, setMessages] = useState<Message[] | undefined>([]);
+
+  const [socket, setSocket] = useState<Socket | undefined>();
+
+  // const [socketMessage, setSocketMessage] = useState<Message | undefined>();
 
   function encryptText(text: string,) {
     const bufferKey = Buffer.from([0x8e, 0x60, 0x5e, 0xfe, 0xc7, 0x5f, 0xda, 0xda, 0xad, 0xcf, 0x4c, 0x9b, 0xea, 0x33, 0xde, 0x82, 0x2a, 0x4a, 0xf5, 0x77, 0x32, 0x25, 0xba, 0x43, 0xd6, 0x4b, 0x9a, 0xa8, 0xe1, 0xd2, 0x20, 0x0d]);
@@ -117,40 +140,40 @@ export function AppProvider({ children }: AppProviderProps) {
 
 
 
-//   // Generate keys
-//   const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-//     modulusLength: 2048, // Key size
-//     publicKeyEncoding: {
-//       type: 'spki',
-//       format: 'pem'
-//     },
-//     privateKeyEncoding: {
-//       type: 'pkcs8',
-//       format: 'pem',
-//     }
-//   });
+  //   // Generate keys
+  //   const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+  //     modulusLength: 2048, // Key size
+  //     publicKeyEncoding: {
+  //       type: 'spki',
+  //       format: 'pem'
+  //     },
+  //     privateKeyEncoding: {
+  //       type: 'pkcs8',
+  //       format: 'pem',
+  //     }
+  //   });
 
-//   console.log(publicKey, privateKey);
+  //   console.log(publicKey, privateKey);
 
 
-//  function encrypt(text: string): string {
-//     const encryptedBuffer = crypto.publicEncrypt({
-//         key: publicKey,
-//         padding: crypto.constants.RSA_PKCS1_PADDING
-//     }, Buffer.from(text));
+  //  function encrypt(text: string): string {
+  //     const encryptedBuffer = crypto.publicEncrypt({
+  //         key: publicKey,
+  //         padding: crypto.constants.RSA_PKCS1_PADDING
+  //     }, Buffer.from(text));
 
-//     return encryptedBuffer.toString('base64');
-// }
+  //     return encryptedBuffer.toString('base64');
+  // }
 
-// // Decryption function
-//  function decrypt(encryptedText: string): string {
-//     const decryptedBuffer = crypto.privateDecrypt({
-//         key: privateKey,
-//         padding: crypto.constants.RSA_PKCS1_PADDING
-//     }, Buffer.from(encryptedText, 'base64'));
+  // // Decryption function
+  //  function decrypt(encryptedText: string): string {
+  //     const decryptedBuffer = crypto.privateDecrypt({
+  //         key: privateKey,
+  //         padding: crypto.constants.RSA_PKCS1_PADDING
+  //     }, Buffer.from(encryptedText, 'base64'));
 
-//     return decryptedBuffer.toString('utf8');
-// }
+  //     return decryptedBuffer.toString('utf8');
+  // }
 
 
 
@@ -173,6 +196,10 @@ export function AppProvider({ children }: AppProviderProps) {
     decryptText,
     // encrypt,
     // decrypt
+    socket,
+    setSocket,
+    // socketMessage,
+    // setSocketMessage
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>
