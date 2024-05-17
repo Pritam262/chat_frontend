@@ -9,20 +9,66 @@ import { ADD_MESSAGES_ROUTE } from "@/utils/ApiRoutes";
 // import { decrypt, encrypt } from "@/lib/encryptAndDecryptText";
 // import encryptText from "@/lib/encryptText";
 export default function MessageBar() {
-    const { userInfo, currentChatUser, encryptText } = useAppContext();
+    const { userInfo, currentChatUser, encryptText, socket, setMessages } = useAppContext();
     const [message, setMessage] = useState('');
     const sendMessage = async () => {
         try {
-            console.log(userInfo?.id)
             const { data } = await axios.post(ADD_MESSAGES_ROUTE, {
                 to: currentChatUser?.id,
                 from: userInfo?.id,
                 message: encryptText(message),
             })
-            
+
+            socket?.emit("send-msg", {
+                id: Date.now().toString(),
+                senderId: userInfo?.id,
+                receverId: currentChatUser?.id,
+                type: "text",
+                message: encryptText(message),
+                messageStatus: "deliverd",
+                createdAt: Date.now()
+            })
+
+            //@ts-ignore
+            setMessages((prevMessages) => {
+                // Ensure prevMessages is an array before spreading
+                if (!prevMessages) {
+                    return [{
+                        id: Date.now().toString(),
+                        senderId: userInfo?.id,
+                        receverId: currentChatUser?.id,
+                        type: "text",
+                        message: encryptText(message),
+                        messageStatus: "deliverd",
+                        createdAt: Date.now(),
+                        formSelf:true,
+                    }]; // Return an array with just the new message if prevMessages is undefined
+                }
+                return [...prevMessages, {
+                    id: Date.now().toString(),
+                    senderId: userInfo?.id,
+                    receverId: currentChatUser?.id,
+                    type: "text",
+                    message: encryptText(message),
+                    messageStatus: "deliverd",
+                    createdAt: Date.now(),
+                    formSelf:true,
+                }]; // Spread the existing messages and add the new data
+            });
+
+
             console.log(data);
+            // setMessages((prevMessages) => {
+            //     if (!prevMessages) {
+            //         return data; // Handle initial message case
+            //     }
+            //     return {
+            //         ...prevMessages, // Keep existing properties
+            //         messages: [...prevMessages.messages, data], // Add new message to the messages array
+            //     };
+            // });
             setMessage("");
-            console.log(`User send ${message}e to ${currentChatUser?.name}`);
+            // console.log(`User send ${message} to ${currentChatUser?.name}`);
         } catch (error) {
             console.error(error)
         }
