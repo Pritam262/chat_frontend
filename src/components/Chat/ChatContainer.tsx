@@ -1,7 +1,7 @@
 import { useAppContext } from "@/context/appContext"
 import { calculateTime } from "@/utils/CalculateTime";
 import MessageStatus from "../Common/MessageStatus";
-
+import ImageMessage from "./ImageMessage";
 
 export default function ChatContainer() {
     const { messages, currentChatUser, userInfo, decryptText, setMessages } = useAppContext();
@@ -25,6 +25,7 @@ export default function ChatContainer() {
                                         <span>{message?.senderId === userInfo?.id && <MessageStatus props={{ messageStatus: message?.messageStatus }} />}</span></div>
                                 </div>
                             )}
+                            {message.type === "image" && <ImageMessage props={{ message }} />}
                         </div>
                     )
 
