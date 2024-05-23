@@ -8,8 +8,9 @@ import axios from "axios";
 import { ADD_MESSAGES_ROUTE, SEND_IMAGE_ROUTE } from "@/utils/ApiRoutes";
 import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 import PhotoPicker from "../Common/PhotoPicker";
-import dynamic from "next/dynamic";
-const CaptureAudio = dynamic(() => import("../Common/CaptureAudio"), { ssr: false });
+import CaptureAudio from "../Common/CaptureAudio";
+// import dynamic from "next/dynamic";
+// const CaptureAudio = dynamic(() => import("../Common/CaptureAudio"), { ssr: false });
 // import { decrypt, encrypt } from "@/lib/encryptAndDecryptText";
 // import encryptText from "@/lib/encryptText";
 export default function MessageBar() {
@@ -37,7 +38,7 @@ export default function MessageBar() {
                 createdAt: Date.now()
             })
 
-            //@ts-ignore
+            // @ts-ignore
             setMessages((prevMessages) => {
                 // Ensure prevMessages is an array before spreading
                 if (!prevMessages) {
@@ -65,16 +66,8 @@ export default function MessageBar() {
             });
 
 
-            console.log(data);
-            // setMessages((prevMessages) => {
-            //     if (!prevMessages) {
-            //         return data; // Handle initial message case
-            //     }
-            //     return {
-            //         ...prevMessages, // Keep existing properties
-            //         messages: [...prevMessages.messages, data], // Add new message to the messages array
-            //     };
-            // });
+            // console.log(data);
+
             setMessage("");
             // console.log(`User send ${message} to ${currentChatUser?.name}`);
         } catch (error) {
@@ -113,7 +106,7 @@ export default function MessageBar() {
 
 
     const photoPickerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.files && e.target.files[0]);
+        // console.log(e.target.files && e.target.files[0]);
         try {
 
             const file = e.target.files && e.target.files[0];
@@ -163,17 +156,19 @@ export default function MessageBar() {
                                 createdAt: Date.now(),
                                 formSelf: true,
                             }]; // Return an array with just the new message if prevMessages is undefined
+                        } else {
+
+                            return [...prevMessages, {
+                                id: Date.now().toString(),
+                                senderId: userInfo?.id,
+                                receverId: currentChatUser?.id,
+                                type: "image",
+                                message: data.data.message,
+                                messageStatus: "deliverd",
+                                createdAt: Date.now(),
+                                formSelf: true,
+                            }]; // Spread the existing messages and add the new data
                         }
-                        return [...prevMessages, {
-                            id: Date.now().toString(),
-                            senderId: userInfo?.id,
-                            receverId: currentChatUser?.id,
-                            type: "image",
-                            message: data.data.message,
-                            messageStatus: "deliverd",
-                            createdAt: Date.now(),
-                            formSelf: true,
-                        }]; // Spread the existing messages and add the new data
                     });
                 }
 
