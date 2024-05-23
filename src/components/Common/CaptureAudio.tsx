@@ -3,13 +3,15 @@ import { FaMicrophone, FaPauseCircle, FaPlay, FaStop, FaTrash } from "react-icon
 import { useAppContext } from "@/context/appContext";
 import { MdSend } from "react-icons/md";
 import WaveSurfer from "wavesurfer.js"
+import axios from "axios";
+import { SEND_AUDIO_MESSAGE_ROUTE } from "@/utils/ApiRoutes";
 interface PropsInterface {
     props: {
         hideAudioRecorder: (value: boolean) => void;
     }
 }
 export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInterface) {
-    const { socket, userInfo, currentChatUser } = useAppContext();
+    const { socket, userInfo, currentChatUser, setMessages } = useAppContext();
 
     const [isRecording, setIsRecording] = useState(false);
     const [recordedAudio, setRecordedAudio] = useState<HTMLAudioElement | undefined>();
@@ -68,63 +70,24 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
     }, [])
 
 
-    const handleStartRecording = () => {
+    const handleStartRecording = async () => {
         setRecordingDuratuin(0);
         setCurrentPlayBackTime(0);
         setTotalDuration(0);
         setIsRecording(true);
-
-        // Check if getUserMedia is available
-        // if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        //     console.error("getUserMedia is not supported in this browser.");
-        //     return;
-        // }
-
-        // let stream: MediaStream | undefined;
-        // try {
-        //     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        //         stream = await navigator.mediaDevices.getUserMedia({
-        //             video: false,
-        //             audio: true,
-        //         });
-
-        //         const mediaRecorder = new MediaRecorder(stream);
-        //         mediaRecorderRef.current = mediaRecorder;
-        //         // audioRef?.current.srcObject = stream;
-        //         if (audioRef.current) {
-        //             audioRef.current.srcObject = stream;
-        //         } else {
-        //             console.error("Audio element reference is null.");
-        //         }
-
-
-
-        //         const chunks: BlobPart[] = [];
-        //         mediaRecorder.onstop = () => {
-        //             const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
-        //             const audioUrl = URL.createObjectURL(blob);
-        //             const audio = new Audio(audioUrl);
-        //             setRecordedAudio(audio);
-        //             waveForm?.load(audioUrl);
-        //         }
-        //     } else {
-        //         alert("Mic is not supported in this browser")
-        //         // Provide fallback mechanism or inform users about browser compatibility
-        //     }
-        // } catch (error) {
-        //     console.error('Error accessing media devices:', error);
-        //     // Handle errors
-        // }
 
         navigator.mediaDevices.getUserMedia({
             video: false,
             audio: true,
         }).then((stream: MediaStream) => {
             const mediaRecorder = new MediaRecorder(stream);
+            // console.log("MEDIA RECORDER", mediaRecorder);
             mediaRecorderRef.current = mediaRecorder;
             // audioRef?.current.srcObject = stream;
             if (audioRef.current) {
                 audioRef.current.srcObject = stream;
+
+                // console.log("STREAM START RECORDING", stream)
             } else {
                 console.error("Audio element reference is null.");
             }
@@ -134,12 +97,19 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
             const chunks: BlobPart[] = [];
             mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
 
+            // console.log("BLOB PART", chunks);
+
             mediaRecorder.onstop = () => {
                 const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
-                console.log("BLOB", blob);
+                // console.log("BLOB", blob);
 
                 const audioUrl = URL.createObjectURL(blob);
+
+
                 const audio = new Audio(audioUrl);
+                // console.log("Audio URL", audioUrl);
+                // console.log("Audio", audio);
+
                 setRecordedAudio(audio);
                 waveForm?.load(audioUrl);
             }
@@ -152,25 +122,6 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
     }
 
 
-    useEffect(() => {
-
-        if (waveForm) handleStartRecording();
-    }, [waveForm])
-
-
-
-    useEffect(() => {
-        if (recordedAudio) {
-            const updatePlayBackTime = () => {
-                setCurrentPlayBackTime(recordedAudio.currentTime);
-                console.log("Record audio on useEffect", recordedAudio)
-            };
-            recordedAudio.addEventListener("timeupdate", updatePlayBackTime);
-            return () => {
-                recordedAudio.removeEventListener("timeupdate", updatePlayBackTime)
-            }
-        }
-    }, [recordedAudio])
 
 
     const handleStopRecording = () => {
@@ -193,6 +144,30 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
 
 
 
+    useEffect(() => {
+
+        if (waveForm) handleStartRecording();
+    }, [waveForm])
+
+
+
+    useEffect(() => {
+        if (recordedAudio) {
+
+            const updatePlayBackTime = () => {
+                setCurrentPlayBackTime(recordedAudio.currentTime);
+            };
+            recordedAudio.addEventListener("timeupdate", updatePlayBackTime);
+            return () => {
+                recordedAudio.removeEventListener("timeupdate", updatePlayBackTime)
+            }
+        }
+    }, [recordedAudio])
+
+
+
+
+
     const handlePlayRecorded = () => {
         if (recordedAudio) {
             waveForm?.stop();
@@ -201,17 +176,92 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
             setIsPlaying(true)
         }
     }
+
     const handlePauseRecording = () => {
-        console.log("Handle Pause");
 
         waveForm?.stop();
         recordedAudio?.pause();
         setIsPlaying(false);
-        // setIsRecording(false);
     }
-    const sendRecording = async () => {
 
+
+
+    const sendRecording = async () => {
+        try {
+
+            const file = renderAudio;
+            console.log(file);
+            if (file) {
+
+                const fromData = new FormData();
+                fromData.append("audio", file);
+
+                const response = await axios.post(SEND_AUDIO_MESSAGE_ROUTE, fromData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    },
+                    params: {
+                        from: userInfo?.id,
+                        to: currentChatUser?.id
+                    }
+                });
+
+
+                if (response.status === 200) {
+
+                    const data = await response.data;
+                    console.log(data);
+
+
+                    socket?.emit("send-msg", {
+                        id: Date.now().toString(),
+                        senderId: userInfo?.id,
+                        receverId: currentChatUser?.id,
+                        type: "audio",
+                        message: data.data.message,
+                        messageStatus: "deliverd",
+                        createdAt: Date.now()
+                    })
+
+                    //@ts-ignore
+                    setMessages((prevMessages) => {
+                        // Ensure prevMessages is an array before spreading
+                        if (!prevMessages) {
+                            return [{
+                                id: Date.now().toString(),
+                                senderId: userInfo?.id,
+                                receverId: currentChatUser?.id,
+                                type: "audio",
+                                message: data.data.message,
+                                messageStatus: "deliverd",
+                                createdAt: Date.now(),
+                                formSelf: true,
+                            }]; // Return an array with just the new message if prevMessages is undefined
+                        } else {
+
+                            return [...prevMessages, {
+                                id: Date.now().toString(),
+                                senderId: userInfo?.id,
+                                receverId: currentChatUser?.id,
+                                type: "audio",
+                                message: data.data.message,
+                                messageStatus: "deliverd",
+                                createdAt: Date.now(),
+                                formSelf: true,
+                            }]; // Spread the existing messages and add the new data
+                        }
+                    });
+                }
+
+
+            } else {
+                console.error("Image is not defined")
+            }
+        } catch (error) {
+            console.error(error)
+        };
     }
+
 
     const formatTime = (time: any) => {
         if (isNaN(time)) return "00.00";
@@ -223,7 +273,7 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
 
     return (<div className="flex text-2xl  w-full justify-end items-center">
         <div className="pt-1">
-            <FaTrash className="text-panel-header-icon" onClick={() => { hideAudioRecorder(false); setIsRecording(false) }} />
+            <FaTrash className="text-panel-header-icon" onClick={() => { hideAudioRecorder(false); }} />
         </div>
         <div className="mx-4 py-2 px-4 text-white text-lg flex gap-3 items-center justify-center bg-search-input-container-background rounded-full drop-shadow-lg">
             {isRecording ? (<div className="text-red-500 animate-pulse 2-60 text-center">Recording <span>{recordingDuration}s</span> </div>) : (
@@ -231,7 +281,7 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
                     <>
                         {!isPlaying ?
                             <FaPlay onClick={handlePlayRecorded} /> :
-                            <FaStop onClick={handleStopRecording} />
+                            <FaStop onClick={handlePauseRecording} />
                         }
                     </>)}
                 </div>
@@ -251,7 +301,7 @@ export default function CaptureAudio({ props: { hideAudioRecorder } }: PropsInte
         </div>
 
         <div className="mr-4">
-            {!isRecording ? (<FaMicrophone className="text-red-500" onClick={handleStartRecording} />) : (<FaPauseCircle className="text-red-500 cursor-pointer" onClick={handlePauseRecording} />
+            {!isRecording ? (<FaMicrophone className="text-red-500" onClick={handleStartRecording} />) : (<FaPauseCircle className="text-red-500 cursor-pointer" onClick={handleStopRecording} />
             )}
         </div>
 
