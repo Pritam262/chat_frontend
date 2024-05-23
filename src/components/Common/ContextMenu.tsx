@@ -13,7 +13,7 @@ interface PropsInterface {
 }
 export default function ContextMenu({ props: { options, contextMenu, setContextMenu, cordinates } }: PropsInterface) {
 
-    const contextMenuRef = useRef(null);
+    const contextMenuRef = useRef<HTMLDivElement>(null);
 
 
     function handleClick(e: React.SyntheticEvent, callback: any) {
@@ -22,18 +22,19 @@ export default function ContextMenu({ props: { options, contextMenu, setContextM
         callback();
     }
 
-    // useEffect(() => {
-    //     const handleOutSideClick = (e:any) => {
-    //         if (e.target.id !== "context-opener") {
-    //             if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as HTMLElement)) {
-    //                 setContextMenu(false);
-    //             }
+    useEffect(() => {
+        const handleOutSideClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement; // Type assertion to HTMLElement
+            if (target.id !== "context-opener") {
+                if (contextMenuRef.current && !contextMenuRef.current.contains(target)) {
+                    setContextMenu(false);
+                }
 
-    //         }
-    //     };
-    //     document.addEventListener("click", handleOutSideClick);
-    //     return document.removeEventListener("click", handleOutSideClick);
-    // }, [])
+            }
+        };
+        document.addEventListener("click", handleOutSideClick);
+        return document.removeEventListener("click", handleOutSideClick);
+    }, [])
 
     return <div className={`bg-dropdown-background fixed py-2 z-[100]  shadow-xl`} ref={contextMenuRef} style={{ top: cordinates.y, left: cordinates.x }}>
         <ul>
