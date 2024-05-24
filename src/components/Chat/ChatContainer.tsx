@@ -2,6 +2,9 @@ import { useAppContext } from "@/context/appContext"
 import { calculateTime } from "@/utils/CalculateTime";
 import MessageStatus from "../Common/MessageStatus";
 import ImageMessage from "./ImageMessage";
+// import dynamic from "next/dynamic";
+import VoiceMessage from "./VoiceMessage";
+// const VoiceMessage = dynamic(() => import('./VoiceMessage'), { ssr: false });
 
 export default function ChatContainer() {
     const { messages, currentChatUser, userInfo, decryptText, setMessages } = useAppContext();
@@ -26,6 +29,7 @@ export default function ChatContainer() {
                                 </div>
                             )}
                             {message.type === "image" && <ImageMessage props={{ message }} />}
+                            {message.type === "audio" && <VoiceMessage props={{ message }} />}
                         </div>
                     )
 
