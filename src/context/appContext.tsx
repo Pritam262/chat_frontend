@@ -62,15 +62,18 @@ type AppContextType = {
   // setMessages: Dispatch<SetStateAction<MessagesInterface | undefined>>,
   messages: Message[] | undefined;  // Corrected type for messages
   setMessages: Dispatch<SetStateAction<Message[] | undefined>>;
-  
+
   encryptText: (text: string) => string,
   decryptText: (text: string) => string,
   // encrypt: (text: string) => string,
   // decrypt: (text: string) => string,
   socket: Socket | undefined,
   setSocket: Dispatch<SetStateAction<Socket | undefined>>,
+  messagesSearch: boolean,
+  setMessagesSearch: Dispatch<SetStateAction<boolean>>,
   // socketMessage: Message | undefined,
   // setSocketMessage: Dispatch<SetStateAction<Message | undefined>>
+
 };
 
 
@@ -106,6 +109,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [messages, setMessages] = useState<Message[] | undefined>([]);
 
   const [socket, setSocket] = useState<Socket | undefined>();
+  const [messagesSearch, setMessagesSearch] = useState<boolean>(false);
 
   // const [socketMessage, setSocketMessage] = useState<Message | undefined>();
 
@@ -199,7 +203,10 @@ export function AppProvider({ children }: AppProviderProps) {
     socket,
     setSocket,
     // socketMessage,
-    // setSocketMessage
+    // setSocketMessage,
+    messagesSearch,
+    setMessagesSearch
+
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>
