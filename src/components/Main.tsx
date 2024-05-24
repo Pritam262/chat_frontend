@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Chat from "./Chat/Chat";
 import { io } from "socket.io-client"
 import { Message, MessagesInterface } from "@/utils/types";
+import SearchMessage from "./Chat/SearchMessage";
 
 export default function Main() {
     const socket = io(HOST)
@@ -18,7 +19,7 @@ export default function Main() {
 
 
     const router = useRouter();
-    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket } = useAppContext();
+    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket, messagesSearch } = useAppContext();
     const [redirectLogin, setRedirectLogin] = useState(false);
 
     onAuthStateChanged(firebaseAuth, async (currentUser) => {
@@ -110,7 +111,12 @@ export default function Main() {
         <div className="grid grid-cols-main h-screen w-screen max-h-screen max-w-full overflow-hidden">
             <ChatList />
             {currentChatUser ?
-                <Chat /> : <Empty />}
+                <div className={messagesSearch ? "grid grid-cols-2" : "grid-cols-2 "}>
+
+                    <Chat />
+                    {messagesSearch && <SearchMessage props={{}} />}
+                </div>
+                : <Empty />}
         </div>
     </>
 }
