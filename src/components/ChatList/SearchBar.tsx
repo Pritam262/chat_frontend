@@ -4,7 +4,7 @@ import { BsFilter } from "react-icons/bs";
 export default function SearchBar() {
     return <div className="bg-search-input-container-background flex py-3 pl-5 items-center gap-3 h-14 ">
 
-        <div className="bg-panel-header-backgroun flex items-center gap-5 px-3 py-1 rounded-lg flex-grow">
+        <div className="bg-panel-header-background flex items-center gap-5 px-3 py-1 rounded-lg flex-grow">
             <div>
                 <BiSearchAlt2 className="text-panel-header-icon cursor-pointer text-1" />
             </div>
