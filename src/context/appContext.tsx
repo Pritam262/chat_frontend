@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useState, SetStateAction, Dispatch } from "react";
 import crypto from 'crypto';
 import { Socket } from "socket.io-client";
-import { ChatUser, Message, MessagesInterface, UserInfo } from "@/utils/types";
+import { ChatUser, Message, MessagesInterface, UserContact, UserInfo } from "@/utils/types";
 
 // interface UserInfo {
 //   id?: string,
@@ -45,6 +45,11 @@ interface SocketMessage {
 }
 
 
+
+interface OnlineUser {
+
+}[]
+
 type AppContextType = {
 
   isLogin: boolean;
@@ -53,8 +58,8 @@ type AppContextType = {
   setUserInfo: Dispatch<SetStateAction<UserInfo | undefined>>,
   newUser: boolean,
   setNewUser: Dispatch<SetStateAction<boolean>>,
-  contactPage: boolean,
-  setContactPage: Dispatch<SetStateAction<boolean>>,
+  isContactPage: boolean,
+  setIsContactPage: Dispatch<SetStateAction<boolean>>,
   // changeCurrentChatUser:
   currentChatUser: ChatUser | undefined,
   setCurrentChatUser: Dispatch<SetStateAction<ChatUser | undefined>>,
@@ -72,7 +77,15 @@ type AppContextType = {
   messagesSearch: boolean,
   setMessagesSearch: Dispatch<SetStateAction<boolean>>,
   // socketMessage: Message | undefined,
-  // setSocketMessage: Dispatch<SetStateAction<Message | undefined>>
+  // setSocketMessage: Dispatch<SetStateAction<Message | undefined>>,
+  userContacts: UserContact[] | undefined;
+  setUserContacts: Dispatch<SetStateAction<UserContact[] | undefined>>;
+  onlineUsers: OnlineUser[] | undefined;
+  setOnlineUsers: Dispatch<SetStateAction<OnlineUser[] | undefined>>;
+  filterContacts: UserContact[] | undefined;
+  setFilterContacts: Dispatch<SetStateAction<UserContact[] | undefined>>;
+  isSearchChatActive: boolean;
+  setIsSearchChatActive: Dispatch<SetStateAction<boolean>>;
 
 };
 
@@ -104,12 +117,18 @@ export function AppProvider({ children }: AppProviderProps) {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>();
 
   const [newUser, setNewUser] = useState(false);
-  const [contactPage, setContactPage] = useState(false);
+  const [isContactPage, setIsContactPage] = useState(false);
   const [currentChatUser, setCurrentChatUser] = useState<ChatUser | undefined>();
   const [messages, setMessages] = useState<Message[] | undefined>([]);
 
   const [socket, setSocket] = useState<Socket | undefined>();
   const [messagesSearch, setMessagesSearch] = useState<boolean>(false);
+
+  const [userContacts, setUserContacts] = useState<UserContact[] | undefined>();
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[] | undefined>();
+  const [filterContacts, setFilterContacts] = useState<UserContact[] | undefined>()
+
+  const [isSearchChatActive, setIsSearchChatActive] = useState(false);
 
   // const [socketMessage, setSocketMessage] = useState<Message | undefined>();
 
@@ -190,8 +209,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setUserInfo,
     newUser,
     setNewUser,
-    contactPage,
-    setContactPage,
+    isContactPage,
+    setIsContactPage,
     currentChatUser,
     setCurrentChatUser,
     messages,
@@ -205,8 +224,15 @@ export function AppProvider({ children }: AppProviderProps) {
     // socketMessage,
     // setSocketMessage,
     messagesSearch,
-    setMessagesSearch
-
+    setMessagesSearch,
+    userContacts,
+    setUserContacts,
+    onlineUsers,
+    setOnlineUsers,
+    filterContacts,
+    setFilterContacts,
+    isSearchChatActive,
+    setIsSearchChatActive,
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>
