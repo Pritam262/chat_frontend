@@ -6,14 +6,14 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAppContext } from "@/context/appContext";
 
 export default function ChatHeader() {
-    const { currentChatUser, setMessagesSearch } = useAppContext();
+    const { currentChatUser, setMessagesSearch, onlineUsers } = useAppContext();
     return <div className="h-16 px-4 py-3 flex justify-between items-center bg-panel-header-background z-100">
         {currentChatUser && <>
             <div className="flex items-center-justify-center gap-6">
                 <Avatar props={{ type: "sm", image: currentChatUser?.profilePicture, setImage: () => "" }} />
                 <div className="flex flex-col">
                     <span className="text-primary-strong">{currentChatUser?.name}</span>
-                    <span className="text-secondary text-sm">Online</span>
+                    <span className="text-secondary text-sm">{onlineUsers?.includes(currentChatUser?.id) ? "Online" : "Ofline"}</span>
                 </div>
             </div>
             <div className="flex gap-6">
