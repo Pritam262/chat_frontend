@@ -5,15 +5,15 @@ import SearchBar from "./SearchBar";
 import { useAppContext } from "@/context/appContext";
 import ContactList from "./ContackList";
 export default function ChatList() {
-    const { contactPage } = useAppContext();
+    const { isContactPage } = useAppContext();
     const [pageType, setPageType] = useState("default");
     useEffect(() => {
-        if (contactPage) {
+        if (isContactPage) {
             setPageType("all-contacts")
         } else {
             setPageType("default")
         }
-    }, [contactPage])
+    }, [isContactPage])
     return <div className="bg-panel-header-background flex flex-col max-h-screen z-20">
         {pageType === "default" &&
 

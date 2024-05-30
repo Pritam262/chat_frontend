@@ -6,15 +6,28 @@ import { BiArrowBack, BiSearchAlt2 } from "react-icons/bi";
 import { useAppContext } from "@/context/appContext";
 import ChatListItem from "./ChatListItem";
 import Avatar from "../Common/Avatar";
+// interface Contacts {
+//     users: {}
+// }
+// interface Contacts {
+
+// }
 interface Contacts {
-    users: {}
+    name: string; // Add properties to the Contacts interface
+    // ... other properties
+  }
+  
+  interface FilteredContacts {
+    [key: string]: Contacts[]; // Key can be any string, value is an array of Contacts
 }
+
 interface UserList {
     id: string,
     name: string,
     email: string,
     profilePicture: string,
 }[]
+
 interface userInterface {
     id: string,
     name: string,
@@ -25,13 +38,15 @@ interface userInterface {
 
 
 export default function ContactList() {
-    const [contacts, setContacts] = useState<Contacts>();
-    const { setContactPage, currentChatUser, setCurrentChatUser, userInfo } = useAppContext();
+    const [contacts, setContacts] = useState<FilteredContacts>({});
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchContacts, setSearchContacts] = useState<FilteredContacts>({});
+    const { setIsContactPage, currentChatUser, setCurrentChatUser, userInfo } = useAppContext();
 
 
     const handleContactClick = () => {
-        // setCurrentChatUser(data);
-        setContactPage(false);
+        setCurrentChatUser({ id: String(userInfo?.id), name: String(userInfo?.displayName), email: String(userInfo?.email), about: String(userInfo?.about), profilePicture: String(userInfo?.photoURL) });
+        setIsContactPage(false);
 
     }
     useEffect(() => {
@@ -39,20 +54,38 @@ export default function ContactList() {
         const getData = async () => {
             try {
 
-                const { data } = await axios.get(FETCH_ALL_USER);
+                const { data: { users } } = await axios.get(FETCH_ALL_USER);
 
-                setContacts(data);
-                contacts && console.log(contacts?.users)
+                setContacts(users);
+                setSearchContacts(users);
+
             } catch (error) {
                 console.error(error)
             }
         };
         getData();
     }, [])
+
+
+    useEffect(() => {
+        if (searchTerm.length) {
+            const filteredData: FilteredContacts = {};
+            contacts && Object.keys(contacts).forEach((key: string) => {
+              filteredData[key] = contacts[key].filter((obj: Contacts) => // Type obj as Contacts
+                obj.name.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+              );
+            });
+            setSearchContacts(filteredData);
+        } else {
+            setSearchContacts(contacts)
+        }
+    }, [searchTerm])
+
+
     return <div className="h-full flex-col ">
         <div className="h-24 flex items-end px-3 py-4">
             <div className="flex items-center gap-12 text-white">
-                <BiArrowBack className="cursor-pointer text-xl" onClick={() => setContactPage(false)} />
+                <BiArrowBack className="cursor-pointer text-xl" onClick={() => setIsContactPage(false)} />
                 <span className="">New Chat</span>
             </div>
         </div>
@@ -66,7 +99,7 @@ export default function ContactList() {
                         <BiSearchAlt2 className="text-panel-header-icon cursor-pointer text-1" />
                     </div>
                     <div>
-                        <input type="text" name="" id="" placeholder="Search Contacts" className="bg-transparent text-sm focus:outline-none text-white w-full" />
+                        <input type="text" name="" id="" placeholder="Search Contacts" className="bg-transparent text-sm focus:outline-none text-white w-full" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)} value={searchTerm} />
                     </div>
                 </div>
             </div>
@@ -94,12 +127,12 @@ export default function ContactList() {
                 </div>
             </div>}
 
-            {contacts && Object.entries(contacts.users).map(([initialLetter, userList]) => {
+            {contacts && Object.entries(searchContacts).map(([initialLetter, userList]) => {
 
                 return <div key={Date.now() + initialLetter}>
-                    <div className="text-teal-light pl-10 py-5">
+                    {(userList as userInterface[]).length > 0 && <div className="text-teal-light pl-10 py-5">
                         {initialLetter}
-                    </div>
+                    </div>}
 
                     {/* to solve  this error "userList' is of type 'unknown'.ts(18046) (parameter) userList: unknown" */}
                     {(userList as userInterface[]).map((contact: userInterface) => {
