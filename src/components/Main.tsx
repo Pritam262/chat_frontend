@@ -10,7 +10,7 @@ import { CHECK_USER_ROUTE, GET_MESSAGES_ROUTE, HOST } from "@/utils/ApiRoutes";
 import { useRouter } from "next/navigation";
 import Chat from "./Chat/Chat";
 import { io } from "socket.io-client"
-import { Message, MessagesInterface } from "@/utils/types";
+import { Message} from "@/utils/types";
 import SearchMessage from "./Chat/SearchMessage";
 
 export default function Main() {

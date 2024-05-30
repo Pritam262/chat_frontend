@@ -4,10 +4,10 @@ import { useAppContext } from "@/context/appContext";
 
 
 export default function ChatListHeader() {
-    const { userInfo, contactPage, setContactPage } = useAppContext();
+    const { userInfo, setIsContactPage } = useAppContext();
 
     const handleAllContactPage = async () => {
-        setContactPage((prev) => !prev);
+        setIsContactPage((prev) => !prev);
       
         
     }
