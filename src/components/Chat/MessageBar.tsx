@@ -138,7 +138,7 @@ export default function MessageBar() {
                         receverId: currentChatUser?.id,
                         type: "image",
                         message: data.data.message,
-                        messageStatus: "deliverd",
+                        messageStatus: "delivered",
                         createdAt: Date.now()
                     })
 
@@ -152,7 +152,7 @@ export default function MessageBar() {
                                 receverId: currentChatUser?.id,
                                 type: "image",
                                 message: data.data.message,
-                                messageStatus: "deliverd",
+                                messageStatus: "delivered",
                                 createdAt: Date.now(),
                                 formSelf: true,
                             }]; // Return an array with just the new message if prevMessages is undefined
@@ -164,7 +164,7 @@ export default function MessageBar() {
                                 receverId: currentChatUser?.id,
                                 type: "image",
                                 message: data.data.message,
-                                messageStatus: "deliverd",
+                                messageStatus: "delivered",
                                 createdAt: Date.now(),
                                 formSelf: true,
                             }]; // Spread the existing messages and add the new data
