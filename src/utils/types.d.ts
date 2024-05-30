@@ -28,3 +28,19 @@ export interface ChatUser {
     profilePicture: string,
     about: string
 }
+
+export interface UserContact {
+    about: string,
+    createdAt: string,
+    email: string,
+    id: string,
+    message: string,
+    messageId: string,
+    messageStatus: string,
+    name: string,
+    profilePicture: string,
+    receverId: string,
+    senderId: string,
+    type: string,
+    totalUnreadMessages:number
+  }
