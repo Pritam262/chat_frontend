@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useState, SetStateAction, Dispatch } from "react";
 import crypto from 'crypto';
 import { Socket } from "socket.io-client";
-import { ChatUser, Message, MessagesInterface, UserContact, UserInfo } from "@/utils/types";
+import { ChatUser, IncomingVideoCall, IncomingVoiceCall, Message, MessagesInterface, UserContact, UserInfo, VideoCall, VoiceCall } from "@/utils/types";
 
 // interface UserInfo {
 //   id?: string,
@@ -50,6 +50,8 @@ interface OnlineUser {
 
 }[]
 
+
+
 type AppContextType = {
 
   isLogin: boolean;
@@ -86,7 +88,18 @@ type AppContextType = {
   setFilterContacts: Dispatch<SetStateAction<UserContact[] | undefined>>;
   isSearchChatActive: boolean;
   setIsSearchChatActive: Dispatch<SetStateAction<boolean>>;
+  videoCall: VideoCall | undefined;
+  setVideoCall: Dispatch<SetStateAction<VideoCall | undefined>>;
+  voiceCall: VoiceCall | undefined;
+  setVoiceCall: Dispatch<SetStateAction<VoiceCall | undefined>>;
+  endCall: () => void;
+  // setEndCall: Dispatch<SetStateAction<void>>;
+  incomingVoiceCall: IncomingVoiceCall | undefined;
+  setIncomingVoiceCall: Dispatch<SetStateAction<IncomingVoiceCall | undefined>>;
+  incomingVideoCall: IncomingVideoCall | undefined;
+  setIncomingVideoCall: Dispatch<SetStateAction<IncomingVideoCall | undefined>>;
 
+  exitChat: () => void;
 };
 
 
@@ -129,8 +142,28 @@ export function AppProvider({ children }: AppProviderProps) {
   const [filterContacts, setFilterContacts] = useState<UserContact[] | undefined>()
 
   const [isSearchChatActive, setIsSearchChatActive] = useState(false);
+  const [voiceCall, setVoiceCall] = useState<VoiceCall | undefined>()
+  const [videoCall, setVideoCall] = useState<VideoCall | undefined>();
+  const [incomingVoiceCall, setIncomingVoiceCall] = useState<IncomingVoiceCall | undefined>();
+  const [incomingVideoCall, setIncomingVideoCall] = useState<IncomingVideoCall | undefined>();
+
+
+
+  const endCall = () => {
+    setIncomingVideoCall(undefined);
+    setIncomingVoiceCall(undefined);
+    setVoiceCall(undefined);
+    setVideoCall(undefined);
+  }
+  // const [endCall, setEndCall] = useState(endCallU);
 
   // const [socketMessage, setSocketMessage] = useState<Message | undefined>();
+
+
+  const exitChat = ()=>{
+    setCurrentChatUser(undefined);
+    
+  }
 
   function encryptText(text: string,) {
     const bufferKey = Buffer.from([0x8e, 0x60, 0x5e, 0xfe, 0xc7, 0x5f, 0xda, 0xda, 0xad, 0xcf, 0x4c, 0x9b, 0xea, 0x33, 0xde, 0x82, 0x2a, 0x4a, 0xf5, 0x77, 0x32, 0x25, 0xba, 0x43, 0xd6, 0x4b, 0x9a, 0xa8, 0xe1, 0xd2, 0x20, 0x0d]);
@@ -233,6 +266,17 @@ export function AppProvider({ children }: AppProviderProps) {
     setFilterContacts,
     isSearchChatActive,
     setIsSearchChatActive,
+    voiceCall,
+    setVoiceCall,
+    videoCall,
+    setVideoCall,
+    endCall,
+    // setEndCall,
+    incomingVoiceCall,
+    setIncomingVoiceCall,
+    incomingVideoCall,
+    setIncomingVideoCall,
+    exitChat,
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>

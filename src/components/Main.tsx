@@ -10,8 +10,12 @@ import { CHECK_USER_ROUTE, GET_MESSAGES_ROUTE, HOST } from "@/utils/ApiRoutes";
 import { useRouter } from "next/navigation";
 import Chat from "./Chat/Chat";
 import { io } from "socket.io-client"
-import { Message} from "@/utils/types";
+import { Message } from "@/utils/types";
 import SearchMessage from "./Chat/SearchMessage";
+import VideoCall from "./Call/VideoCall";
+import VoiceCall from "./Call/VoiceCall";
+import IncomingVideoCall from "./Common/IncomingVideoCall";
+import IncomingVoiceCall from "./Common/IncomingVoiceCall";
 
 export default function Main() {
     const socket = io(HOST)
@@ -19,7 +23,7 @@ export default function Main() {
 
 
     const router = useRouter();
-    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket, messagesSearch } = useAppContext();
+    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket, messagesSearch, videoCall, voiceCall, incomingVideoCall, incomingVoiceCall, setIncomingVoiceCall, setIncomingVideoCall, endCall, setOnlineUsers } = useAppContext();
     const [redirectLogin, setRedirectLogin] = useState(false);
 
     onAuthStateChanged(firebaseAuth, async (currentUser) => {
@@ -63,7 +67,7 @@ export default function Main() {
                 setSocket(socket)
 
                 socket.emit("add-user", userInfo?.id);
-                console.log("Connected", socket.id)
+                // console.log("Connected", socket.id)
             })
         }
     }, [userInfo])
@@ -80,7 +84,52 @@ export default function Main() {
                 return [...prevMessages, data]; // Spread the existing messages and add the new data
             });
 
+        });
+
+
+
+        socket.on("incoming-voice-call", ({ from, roomId, callType }) => {
+            setIncomingVoiceCall({ from, roomId, callType })
         })
+
+
+        socket.on("incoming-video-call", ({ from, roomId, callType }) => {
+            setIncomingVideoCall({ from, roomId, callType })
+        })
+
+
+        socket.on("voice-call-rejected", () => {
+            // console.log("Voice call rejected");
+            endCall()
+        })
+
+
+
+        socket.on("video-call-rejected", () => {
+            // console.log("Video call rejected from backend");
+            endCall()
+        })
+
+
+        // socket.on("call-cancel", () => {
+        //     // console.log("Call cancel by user");
+        //     endCall()
+        // })
+
+
+        // Accept call data
+
+        // socket.on("accept-call", (data) => {
+        //     console.log("Accept call by backend", data)
+        // })
+
+        // GET ONLINE USER
+
+        socket?.on("online-user", ({ onlineUsers }) => {
+            setOnlineUsers(onlineUsers);
+            // console.log(onlineUsers);
+        })
+
     }, [socket])
 
 
@@ -104,19 +153,28 @@ export default function Main() {
     }, [currentChatUser])
 
 
-
-
     return <>
+        {incomingVideoCall && <IncomingVideoCall />}
+        {incomingVoiceCall && <IncomingVoiceCall />}
 
-        <div className="grid grid-cols-main h-screen w-screen max-h-screen max-w-full overflow-hidden">
-            <ChatList />
-            {currentChatUser ?
-                <div className={messagesSearch ? "grid grid-cols-2" : "grid-cols-2 "}>
 
-                    <Chat />
-                    {messagesSearch && <SearchMessage props={{}} />}
-                </div>
-                : <Empty />}
-        </div>
+        {videoCall && <div className="h-screen w-full max-h-full overflow-hidden">
+            <VideoCall />
+        </div>}
+
+        {voiceCall && <div className="h-screen w-full max-h-full overflow-hidden">
+            <VoiceCall />
+        </div>}
+        {!videoCall && !voiceCall &&
+            <div className="grid grid-cols-main h-screen w-screen max-h-screen max-w-full overflow-hidden">
+                <ChatList />
+                {currentChatUser ?
+                    <div className={messagesSearch ? "grid grid-cols-2" : "grid-cols-2 "}>
+
+                        <Chat />
+                        {messagesSearch && <SearchMessage props={{}} />}
+                    </div>
+                    : <Empty />}
+            </div>}
     </>
 }
