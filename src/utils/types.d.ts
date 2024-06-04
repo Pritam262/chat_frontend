@@ -42,5 +42,47 @@ export interface UserContact {
     receverId: string,
     senderId: string,
     type: string,
-    totalUnreadMessages:number
-  }
+    totalUnreadMessages: number
+}
+
+export interface VideoCall {
+    currentChatUser: {
+        id: string,
+        name: string,
+        profilePicture: string,
+    },
+    type: string,
+    callType: string,
+    roomId: number,
+}
+
+export interface VoiceCall {
+    currentChatUser: {
+        id: string,
+        name: string,
+        profilePicture: string,
+    },
+    type: string,
+    callType: string,
+    roomId: number,
+}
+
+export interface IncomingVideoCall {
+    from: {
+        id: string,
+        name: string,
+        profilePicture: string,
+    },
+    roomId: number,
+    callType: string
+}
+
+export interface IncomingVoiceCall {
+    from: {
+        id: string,
+        name: string,
+        profilePicture: string,
+    },
+    roomId: number,
+    callType: string
+}
