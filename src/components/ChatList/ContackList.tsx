@@ -41,7 +41,7 @@ export default function ContactList() {
     const [contacts, setContacts] = useState<FilteredContacts>({});
     const [searchTerm, setSearchTerm] = useState("");
     const [searchContacts, setSearchContacts] = useState<FilteredContacts>({});
-    const { setIsContactPage, currentChatUser, setCurrentChatUser, userInfo } = useAppContext();
+    const { setIsContactPage, setCurrentChatUser, userInfo } = useAppContext();
 
 
     const handleContactClick = () => {
