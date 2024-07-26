@@ -6,9 +6,9 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAppContext } from "@/context/appContext";
 import { useState, MouseEvent } from "react";
 import ContextMenu from "../Common/ContextMenu";
-
+import PeerService from "../../service/peer";
 export default function ChatHeader() {
-    const { currentChatUser, setMessagesSearch, onlineUsers, setVideoCall, setVoiceCall,  exitChat } = useAppContext();
+    const { currentChatUser, setMessagesSearch, onlineUsers, setVideoCall, setVoiceCall, exitChat } = useAppContext();
 
     const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
     const [contextMenuCordinate, setContextMenuCordinates] = useState({ x: 0, y: 0 });
@@ -27,14 +27,18 @@ export default function ChatHeader() {
         },
     ]
 
-    const handleVoiceCall = () => {
-        currentChatUser && setVoiceCall({ currentChatUser, type: "out-going", callType: "voice", roomId: Date.now() });
+    const handleVoiceCall = async () => {
+        const offer = await PeerService.getOffer();
+        console.log({ offer });
+        currentChatUser && setVoiceCall({ currentChatUser: { id: currentChatUser?.id, name: currentChatUser?.name, profilePicture: currentChatUser?.profilePicture }, type: "out-going", callType: "voice", roomId: Date.now(), offer });
 
         setVideoCall(undefined);
     };
 
-    const handleVideoCall = () => {
-        currentChatUser && setVideoCall({ currentChatUser, type: "out-going", callType: "video", roomId: Date.now() });
+    const handleVideoCall = async () => {
+        const offer = await PeerService.getOffer();
+        console.log("OFFER", offer);
+        currentChatUser && setVideoCall({ currentChatUser: { id: currentChatUser?.id, name: currentChatUser?.name, profilePicture: currentChatUser?.profilePicture }, type: "out-going", callType: "video", roomId: Date.now(), offer });
 
         setVoiceCall(undefined);
     };
