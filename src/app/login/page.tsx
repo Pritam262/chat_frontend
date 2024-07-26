@@ -3,7 +3,7 @@
 import { CHECK_USER_ROUTE } from "@/utils/ApiRoutes"
 import { firebaseAuth } from "@/utils/FirebaseConfig"
 import axios from "axios"
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { GoogleAuthProvider, signInWithPopup} from "firebase/auth"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
@@ -39,7 +39,8 @@ export default function LoginPage() {
                     setUserInfo({
                         displayName: String(name),
                         email: String(email),
-                        photoURL: String(profileImage)
+                        photoURL: String(profileImage),
+                        id: data?.id
                     })
                     router.push('/onboarding');
                 }
