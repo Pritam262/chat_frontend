@@ -2,13 +2,16 @@ import { useAppContext } from "@/context/appContext";
 import { HOST } from "@/utils/ApiRoutes";
 import Image from "next/image";
 import Avatar from "./Avatar";
+import PeerService from "../../service/peer";
 export default function IncomingVoiceCall() {
     const { incomingVoiceCall, socket, endCall, setVoiceCall, voiceCall, setIncomingVoiceCall } = useAppContext();
-    const acceptCall = () => {
+    const acceptCall = async () => {
 
-        socket?.emit("accept-incoming-call", { id: incomingVoiceCall?.from?.id });
+        const ans = await PeerService.getAnswer(incomingVoiceCall?.offer)
 
-        incomingVoiceCall && setVoiceCall({ currentChatUser: incomingVoiceCall?.from && incomingVoiceCall.from, callType: "voice", type: "in-coming", roomId: incomingVoiceCall?.roomId });
+        socket?.emit("accept-incoming-call", { id: incomingVoiceCall?.from?.id, ans });
+
+        incomingVoiceCall && setVoiceCall({ currentChatUser: incomingVoiceCall?.from && incomingVoiceCall.from, callType: "voice", type: "in-coming", roomId: incomingVoiceCall?.roomId});
         setIncomingVoiceCall(undefined);
 
     };

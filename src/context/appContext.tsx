@@ -100,6 +100,8 @@ type AppContextType = {
   setIncomingVideoCall: Dispatch<SetStateAction<IncomingVideoCall | undefined>>;
 
   exitChat: () => void;
+  isCallEnd: boolean;
+  setIsCallEnd: Dispatch<SetStateAction<boolean>>;
 };
 
 
@@ -147,6 +149,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [incomingVoiceCall, setIncomingVoiceCall] = useState<IncomingVoiceCall | undefined>();
   const [incomingVideoCall, setIncomingVideoCall] = useState<IncomingVideoCall | undefined>();
 
+  const [isCallEnd, setIsCallEnd] = useState(true);
 
 
   const endCall = () => {
@@ -160,9 +163,9 @@ export function AppProvider({ children }: AppProviderProps) {
   // const [socketMessage, setSocketMessage] = useState<Message | undefined>();
 
 
-  const exitChat = ()=>{
+  const exitChat = () => {
     setCurrentChatUser(undefined);
-    
+
   }
 
   function encryptText(text: string,) {
@@ -277,6 +280,8 @@ export function AppProvider({ children }: AppProviderProps) {
     incomingVideoCall,
     setIncomingVideoCall,
     exitChat,
+    isCallEnd,
+    setIsCallEnd,
   };
 
   return <AppContext.Provider value={contextValue}> {children} </AppContext.Provider>

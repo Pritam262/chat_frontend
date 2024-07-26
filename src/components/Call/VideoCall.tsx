@@ -6,6 +6,7 @@ import { useEffect } from "react";
 export default function VideoCall() {
     const {  videoCall, socket, userInfo, } = useAppContext();
     useEffect(() => {
+    
         if (videoCall?.type === "out-going") {
             socket?.emit("outgoing-video-call", {
                 to: videoCall?.currentChatUser?.id,
@@ -16,6 +17,7 @@ export default function VideoCall() {
                 },
                 callType: videoCall?.callType,
                 roomId: videoCall?.roomId,
+                offer:videoCall?.offer,
             })
         }
     }, [videoCall])
