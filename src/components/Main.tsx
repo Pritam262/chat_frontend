@@ -3,7 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import ChatList from "./ChatList/ChatList";
 import Empty from "./Empty";
 import { firebaseAuth } from "@/utils/FirebaseConfig";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppContext } from "@/context/appContext";
 import axios from "axios";
 import { CHECK_USER_ROUTE, GET_MESSAGES_ROUTE, HOST } from "@/utils/ApiRoutes";
@@ -19,11 +19,12 @@ import IncomingVoiceCall from "./Common/IncomingVoiceCall";
 
 export default function Main() {
     const socket = io(HOST)
+
     // const socket = useRef();
 
 
     const router = useRouter();
-    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket, messagesSearch, videoCall, voiceCall, incomingVideoCall, incomingVoiceCall, setIncomingVoiceCall, setIncomingVideoCall, endCall, setOnlineUsers } = useAppContext();
+    const { userInfo, setUserInfo, currentChatUser, setMessages, messages, setSocket, messagesSearch, videoCall, voiceCall, incomingVideoCall, incomingVoiceCall, setIncomingVoiceCall, setIncomingVideoCall, endCall, setOnlineUsers, setIsCallEnd } = useAppContext();
     const [redirectLogin, setRedirectLogin] = useState(false);
 
     onAuthStateChanged(firebaseAuth, async (currentUser) => {
@@ -53,16 +54,7 @@ export default function Main() {
 
     useEffect(() => {
         if (userInfo) {
-
-            //@ts-ignore
-            // socket.current = io(HOST);
-
-            //@ts-ignore
-            // socket.current.emit("add-user", userInfo?.id)
-            // socket.on("connect", () => {
-            //     console.log("User connect", socket.id);
-
-            // });
+            
             socket.on("connect", () => {
                 setSocket(socket)
 
@@ -88,40 +80,32 @@ export default function Main() {
 
 
 
-        socket.on("incoming-voice-call", ({ from, roomId, callType }) => {
-            setIncomingVoiceCall({ from, roomId, callType })
+        socket.on("incoming-voice-call", ({ from, roomId, callType, offer }) => {
+            // console.log({ from, roomId, callType, offer });
+            setIncomingVoiceCall({ from, roomId, callType, offer });
         })
 
 
-        socket.on("incoming-video-call", ({ from, roomId, callType }) => {
-            setIncomingVideoCall({ from, roomId, callType })
+        socket.on("incoming-video-call", ({ from, roomId, callType, offer }) => {
+            // console.log({ from, roomId, callType, offer });
+            setIncomingVideoCall({ from, roomId, callType, offer });
         })
 
 
         socket.on("voice-call-rejected", () => {
             // console.log("Voice call rejected");
-            endCall()
+            endCall();
+            setIsCallEnd(true);
         })
 
 
 
         socket.on("video-call-rejected", () => {
             // console.log("Video call rejected from backend");
-            endCall()
+            endCall();
+            setIsCallEnd(true);
         })
 
-
-        // socket.on("call-cancel", () => {
-        //     // console.log("Call cancel by user");
-        //     endCall()
-        // })
-
-
-        // Accept call data
-
-        // socket.on("accept-call", (data) => {
-        //     console.log("Accept call by backend", data)
-        // })
 
         // GET ONLINE USER
 
