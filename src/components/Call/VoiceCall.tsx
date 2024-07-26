@@ -4,7 +4,7 @@ import Container from "./Container";
 import { useEffect } from "react";
 export default function VoiceCall() {
 
-    const { endCall, voiceCall, socket, userInfo } = useAppContext()
+    const { voiceCall, socket, userInfo } = useAppContext()
     useEffect(() => {
         if (voiceCall?.type === "out-going") {
             socket?.emit("outgoing-voice-call", {
@@ -16,6 +16,7 @@ export default function VoiceCall() {
                 },
                 callType: voiceCall?.callType,
                 roomId: voiceCall?.roomId,
+                offer: voiceCall?.offer,
             })
         }
     }, [voiceCall])
