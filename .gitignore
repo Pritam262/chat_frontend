@@ -31,7 +31,7 @@ yarn-error.log*
 .env
 
 #Firebase configuration
-src/utils/FirebaseConfig.ts
+# src/utils/FirebaseConfig.ts
 
 # vercel
 .vercel
