@@ -1,20 +1,23 @@
 import { useAppContext } from "@/context/appContext";
 import { HOST } from "@/utils/ApiRoutes";
 import Image from "next/image";
-
+import PeerService from "../../service/peer";
 export default function IncomingVideoCall() {
 
     const { incomingVideoCall, socket, endCall, setVideoCall, videoCall, setIncomingVideoCall } = useAppContext();
 
-    const acceptCall = () => {
+    const acceptCall = async () => {
 
         // Error ts
-
-        incomingVideoCall && setVideoCall({ currentChatUser: incomingVideoCall?.from, callType: "video", type: "in-coming", roomId: incomingVideoCall?.roomId });
+        console.log(incomingVideoCall);
+        const ans = await PeerService.getAnswer(incomingVideoCall?.offer);
+        
+        incomingVideoCall && setVideoCall({ currentChatUser: incomingVideoCall?.from, callType: "video", type: "in-coming", roomId: incomingVideoCall?.roomId, });
+        
         setIncomingVideoCall(undefined);
 
 
-        socket?.emit("accept-incoming-call", { id: incomingVideoCall?.from?.id });
+        socket?.emit("accept-incoming-call", { id: incomingVideoCall?.from?.id, ans });
     };
     const rejectCall = () => {
         socket?.emit("reject-video-call", incomingVideoCall);
