@@ -14,7 +14,7 @@ export interface MessagesInterface {
 
 
 export interface UserInfo {
-    id?: string,
+    id: string,
     displayName: string,
     email: string,
     photoURL: string,
@@ -54,6 +54,7 @@ export interface VideoCall {
     type: string,
     callType: string,
     roomId: number,
+    offer?
 }
 
 export interface VoiceCall {
@@ -65,6 +66,7 @@ export interface VoiceCall {
     type: string,
     callType: string,
     roomId: number,
+    offer?
 }
 
 export interface IncomingVideoCall {
@@ -74,7 +76,8 @@ export interface IncomingVideoCall {
         profilePicture: string,
     },
     roomId: number,
-    callType: string
+    callType: string,
+    offer?,
 }
 
 export interface IncomingVoiceCall {
@@ -84,5 +87,6 @@ export interface IncomingVoiceCall {
         profilePicture: string,
     },
     roomId: number,
-    callType: string
+    callType: string,
+    offer,
 }
